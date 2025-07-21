@@ -19,14 +19,20 @@ Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la 
 1. Link
 * [Requisiti](TemaFinale25.html)
 
+  
+
 
 ## Goal dello sprint 0
+
 Componenti forniti dal committente:
+
     - DDR robot
     - productservice
     - wvenv come hold della nave (ambiente dove il robot esiste e si muove)
     - products
+    
 Componenti da sviluppare:
+
     - sistema per muovere il robot verso la IOport e gli slot di carico
     - Modulo per l'interazione con productservice
         ```
