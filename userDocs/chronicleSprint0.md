@@ -35,16 +35,12 @@ Componenti da sviluppare:
 
     - sistema per muovere il robot verso la IOport e gli slot di carico
     - Modulo per l'interazione con productservice
-        ```
         Responsabilità:
             Interfacciarsi con il servizio per verificare requisiti di carico (peso).
             Ottenere e gestire il PID restituito.
-        ```
     - Gestione slot nella stiva – SlotManager o HoldManager
-        ```
         Responsabilità:
             Tenere traccia dello stato degli slot (libero/occupato).
             Assegnare lo slot disponibile al robot.
             Verificare che il prodotto sia posizionato correttamente.
-        ```
     - Interfacciare utente o operatori (es. tramite GUI o CLI).
