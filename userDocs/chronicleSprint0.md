@@ -11,3 +11,34 @@ Il documento (‘chronicle’) relativo a ciascuno SPRINT deve contenere:
     Un piano di testing relativo al Testing (User Acceptance Test)
 
 Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la versione precedente e dare al nuovo documento un numero di versione.
+
+
+
+
+
+1. Link
+* [Requisiti](TemaFinale25.html)
+
+
+## Goal dello sprint 0
+Componenti forniti dal committente:
+    - DDR robot
+    - productservice
+    - wvenv come hold della nave (ambiente dove il robot esiste e si muove)
+    - products
+Componenti da sviluppare:
+    - sistema per muovere il robot verso la IOport e gli slot di carico
+    - Modulo per l'interazione con productservice
+        ```
+        Responsabilità:
+            Interfacciarsi con il servizio per verificare requisiti di carico (peso).
+            Ottenere e gestire il PID restituito.
+        ```
+    - Gestione slot nella stiva – SlotManager o HoldManager
+        ```
+        Responsabilità:
+            Tenere traccia dello stato degli slot (libero/occupato).
+            Assegnare lo slot disponibile al robot.
+            Verificare che il prodotto sia posizionato correttamente.
+        ```
+    - Interfacciare utente o operatori (es. tramite GUI o CLI).
