@@ -81,6 +81,14 @@
         <mxCell id="f1D6WuZxMdPs2gHAFTNx-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="WGEKUS04sTv0rBj9BLx_-4" target="f1D6WuZxMdPs2gHAFTNx-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="b7JDsCgxkfN641fADbbu-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="WGEKUS04sTv0rBj9BLx_-4" target="WGEKUS04sTv0rBj9BLx_-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="622" y="170" />
+              <mxPoint x="420" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
         <mxCell id="WGEKUS04sTv0rBj9BLx_-4" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="610" y="240" width="80" height="80" as="geometry" />
         </mxCell>
@@ -120,7 +128,7 @@
         <mxCell id="WGEKUS04sTv0rBj9BLx_-15" value="Sonar rileva un prodotto legale e registrato, caso ottimo" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="40" y="40" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="WGEKUS04sTv0rBj9BLx_-18" value="1. Request To Load + PID" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="WGEKUS04sTv0rBj9BLx_-18" value="1. PID e peso (entry in db)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="550" y="130" width="100" height="30" as="geometry" />
         </mxCell>
         <mxCell id="WGEKUS04sTv0rBj9BLx_-23" value="4. esito positivo -&amp;gt; ok" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
@@ -152,6 +160,12 @@
         </mxCell>
         <mxCell id="f1D6WuZxMdPs2gHAFTNx-4" value="8. Aggiorna" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="690" y="250" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b7JDsCgxkfN641fADbbu-1" value="DUBBI -&lt;br&gt;Da chi ricevo la RequestToLoad???&lt;br&gt;Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="100" width="190" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="b7JDsCgxkfN641fADbbu-6" value="0. Ho ricevuto Request To Load con PID" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="470" y="180" width="100" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
