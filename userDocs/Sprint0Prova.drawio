@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0" version="28.0.6" pages="2">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0" version="28.0.6" pages="5">
   <diagram name="Pagina-1" id="pbFFbsPUBwS1l44IJEz7">
     <mxGraphModel dx="1139" dy="554" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -120,7 +120,7 @@
         <mxCell id="WGEKUS04sTv0rBj9BLx_-15" value="Sonar rileva un prodotto legale e registrato, caso ottimo" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="40" y="40" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="WGEKUS04sTv0rBj9BLx_-18" value="1. Request To Load" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="WGEKUS04sTv0rBj9BLx_-18" value="1. Request To Load + PID" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="550" y="130" width="100" height="30" as="geometry" />
         </mxCell>
         <mxCell id="WGEKUS04sTv0rBj9BLx_-23" value="4. esito positivo -&amp;gt; ok" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
@@ -152,6 +152,39 @@
         </mxCell>
         <mxCell id="f1D6WuZxMdPs2gHAFTNx-4" value="8. Aggiorna" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="690" y="250" width="120" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="76WHZiTY7NhlEmDXt8R-" name="Neg1 - illegalProduct">
+    <mxGraphModel dx="820" dy="399" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7TsAhdL8rtgzQ2KAtKML-1" value="Prodotto non registrato o peso &amp;gt; max" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="10" width="200" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="DOwO07wMtf2_0plUY5b7" name="Neg2 - interrupt">
+    <mxGraphModel dx="1025" dy="499" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uiuxDL_elA8yQI4Zi2Tw-1" value="Interrupt" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="190" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="aJIhUGhbb4Blrnv0pGhI" name="Neg3 - Slot Occupati">
+    <mxGraphModel dx="1025" dy="499" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="AgatTy13-pNeH2oPpSTZ-1" value="Prodotto legale - Slot occupati" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="210" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
