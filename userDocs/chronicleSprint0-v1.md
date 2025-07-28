@@ -31,7 +31,7 @@ ________________________________________________________________________________
     - DDR robot
     - productservice
     - wvenv come hold della nave (ambiente dove il robot esiste e si muove)
-    - products
+    - products (database dei prodotti fornito dal committente)
     
 ## Componenti da sviluppare:
 
