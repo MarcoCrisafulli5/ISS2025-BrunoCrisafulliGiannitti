@@ -33,8 +33,9 @@ ________________________________________________________________________________
             Verificare che il prodotto sia posizionato correttamente.
     - Interfaccia utente o operatori (es. tramite GUI o CLI).
 
-## Piano di testing
+## Piano di testing e Proposta Architetturale
 Il piano di testing preliminare è stato realizzato tramite diagrammi drawio, illustriamo i vari casi:
+Supponiamo le varie entità come dei microservizi.
 ### Prodotto Disponibile - Flusso ideale
 <img width="741" height="441" alt="Senza titolo" src="https://github.com/user-attachments/assets/7b771765-9988-483a-b5d9-eb24532135fc" />
 
