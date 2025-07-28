@@ -19,11 +19,11 @@ Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la 
 
   
 2. Goal dello sprint 0
-    - Fornire una panoramica dei componenti già forniti dal committente e dei componenti da sviluppare. \
-    - Produrre un piano di test preliminare da proporre e validare insieme al committente \
+    - Fornire una panoramica dei componenti già forniti dal committente e dei componenti da sviluppare. 
+    - Produrre un piano di test preliminare da proporre e validare insieme al committente 
     - Chiarire eventuali dubbi relativi ai requisiti
 
-________________________________________________________________________________________________________________\
+________________________________________________________________________________________________________________
 
 
 ## Componenti forniti dal committente:
