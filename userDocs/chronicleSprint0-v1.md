@@ -14,9 +14,7 @@ Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la 
 
 
 
-
-
-1. Link
+1. Link ai requisiti
 * [Requisiti](TemaFinale25.html)
 
   
@@ -24,16 +22,18 @@ Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la 
     - Fornire una panoramica dei componenti già forniti dal committente e dei componenti da sviluppare. \
     - Produrre un piano di test preliminare da proporre e validare insieme al committente \
     - Chiarire eventuali dubbi relativi ai requisiti
-   
 
-Componenti forniti dal committente:
+________________________________________________________________________________________________________________\
+
+
+## Componenti forniti dal committente:
 
     - DDR robot
     - productservice
     - wvenv come hold della nave (ambiente dove il robot esiste e si muove)
     - products
     
-# Componenti da sviluppare:
+## Componenti da sviluppare:
 
     - sistema per muovere il robot verso la IOport e gli slot di carico
     - Modulo per l'interazione con productservice
@@ -47,7 +47,7 @@ Componenti forniti dal committente:
             Verificare che il prodotto sia posizionato correttamente.
     - Interfaccia utente o operatori (es. tramite GUI o CLI).
 
-# Chiarire con il committente:
+## Chiarire con il committente:
 DUBBI -
 Da chi ricevo la RequestToLoad???
 Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti
