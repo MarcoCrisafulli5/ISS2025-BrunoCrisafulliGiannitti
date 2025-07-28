@@ -63,6 +63,6 @@ Il piano di testing preliminare è stato realizzato tramite diagrammi drawio, il
 
 
 ## Chiarire con il committente:
-DUBBI -
+
 Da chi ricevo la RequestToLoad???
 Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti
