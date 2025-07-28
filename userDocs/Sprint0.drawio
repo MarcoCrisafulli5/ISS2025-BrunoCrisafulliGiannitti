@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0" version="28.0.6" pages="4">
   <diagram name="ProdottoDisponibile" id="25Efme0Ay3es9wh1dyTM">
-    <mxGraphModel dx="1852" dy="499" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1025" dy="499" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -110,9 +110,6 @@
         </mxCell>
         <mxCell id="f1D6WuZxMdPs2gHAFTNx-4" value="8. Aggiorna" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="690" y="250" width="120" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="b7JDsCgxkfN641fADbbu-1" value="DUBBI -&lt;br&gt;Da chi ricevo la RequestToLoad???&lt;br&gt;Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="-130" y="170" width="190" height="110" as="geometry" />
         </mxCell>
         <mxCell id="b7JDsCgxkfN641fADbbu-6" value="0. Ho ricevuto Request To Load con PID" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="470" y="180" width="100" height="30" as="geometry" />
