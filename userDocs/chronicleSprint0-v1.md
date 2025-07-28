@@ -20,9 +20,11 @@ Nel caso di revisione del documento relativo ad uno SPRINT, occorre lasciare la 
 * [Requisiti](TemaFinale25.html)
 
   
-
-
-## Goal dello sprint 0
+2. Goal dello sprint 0
+    - Fornire una panoramica dei componenti già forniti dal committente e dei componenti da sviluppare. \
+    - Produrre un piano di test preliminare da proporre e validare insieme al committente \
+    - Chiarire eventuali dubbi relativi ai requisiti
+   
 
 Componenti forniti dal committente:
 
@@ -31,7 +33,7 @@ Componenti forniti dal committente:
     - wvenv come hold della nave (ambiente dove il robot esiste e si muove)
     - products
     
-Componenti da sviluppare:
+# Componenti da sviluppare:
 
     - sistema per muovere il robot verso la IOport e gli slot di carico
     - Modulo per l'interazione con productservice
@@ -45,4 +47,9 @@ Componenti da sviluppare:
             Verificare che il prodotto sia posizionato correttamente.
     - Interfaccia utente o operatori (es. tramite GUI o CLI).
 
-*[Piano di testing](Sprint0.drawio) preliminare realizzato tramite diagrammi drawio, individuati degli edge case scenario e delle cose da chiarire con il committente.
+# Chiarire con il committente:
+DUBBI -
+Da chi ricevo la RequestToLoad???
+Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti
+
+* [Piano di testing](Sprint0.drawio) preliminare realizzato tramite diagrammi drawio, individuati degli edge case scenario e delle cose da chiarire con il committente.
