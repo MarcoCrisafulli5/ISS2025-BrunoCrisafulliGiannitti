@@ -47,9 +47,18 @@ ________________________________________________________________________________
             Verificare che il prodotto sia posizionato correttamente.
     - Interfaccia utente o operatori (es. tramite GUI o CLI).
 
+## Piano di testing
+Il piano di testing preliminare è stato realizzato tramite diagrammi drawio, illustriamo i vari casi:
+### Prodotto Disponibile - Flusso ideale
+
+### Edge case 1 - NEG1 - Prodotto illegale 
+
+### Edge case 2 - NEG2 - Interrupt
+
+### Edge case 3 - NEG3 - Slot Occupati
+
+
 ## Chiarire con il committente:
 DUBBI -
 Da chi ricevo la RequestToLoad???
 Il prodotto è presente SEMPRE nel productService? ambiguità nei requisiti
-
-* [Piano di testing](Sprint0.drawio) preliminare realizzato tramite diagrammi drawio, individuati degli edge case scenario e delle cose da chiarire con il committente.
