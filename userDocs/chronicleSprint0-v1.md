@@ -43,4 +43,6 @@ Componenti da sviluppare:
             Tenere traccia dello stato degli slot (libero/occupato).
             Assegnare lo slot disponibile al robot.
             Verificare che il prodotto sia posizionato correttamente.
-    - Interfacciare utente o operatori (es. tramite GUI o CLI).
+    - Interfaccia utente o operatori (es. tramite GUI o CLI).
+
+*[Piano di testing](Sprint0.drawio) preliminare realizzato tramite diagrammi drawio, individuati degli edge case scenario e delle cose da chiarire con il committente.
