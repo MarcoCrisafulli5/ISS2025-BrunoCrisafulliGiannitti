@@ -50,12 +50,16 @@ ________________________________________________________________________________
 ## Piano di testing
 Il piano di testing preliminare è stato realizzato tramite diagrammi drawio, illustriamo i vari casi:
 ### Prodotto Disponibile - Flusso ideale
+<img width="741" height="441" alt="Senza titolo" src="https://github.com/user-attachments/assets/7b771765-9988-483a-b5d9-eb24532135fc" />
 
 ### Edge case 1 - NEG1 - Prodotto illegale 
+<img width="721" height="471" alt="immagine" src="https://github.com/user-attachments/assets/6f695aac-0242-40c1-9f4c-f21021639ee3" />
 
 ### Edge case 2 - NEG2 - Interrupt
+<img width="811" height="481" alt="immagine" src="https://github.com/user-attachments/assets/970aed2f-2a57-4a97-8a12-dbce2bff214c" />
 
 ### Edge case 3 - NEG3 - Slot Occupati
+<img width="731" height="471" alt="immagine" src="https://github.com/user-attachments/assets/abbc4fab-6680-4d1a-8434-bb3cbd19afa8" />
 
 
 ## Chiarire con il committente:
