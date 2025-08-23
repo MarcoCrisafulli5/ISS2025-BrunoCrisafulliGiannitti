@@ -1,0 +1,58 @@
+System cargoservice
+
+
+Dispatch msg1 : msg1(X)
+Dispatch msg2 : msg2(X)
+Event   cargoevent : cargoevent( INFO )
+
+Context ctxcargoholdservice ip [host="localhost" port=8888]
+Context ctxsonarservice ip [host="localhost" port=8889]
+Context ctxbasicrobot ip [host="localhost" port=8020]  
+Context ctxcargoservice ip [ host="localhost" port=8111]
+
+ExternalQActor productservice context ctxcargoservice
+ExternalQActor cargorobot context ctxbasicrobot
+ExternalQActor sonar context ctxsonarservice
+
+QActor cargo1 context ctxcargoholdservice{
+	State s0 initial {
+		[# sysUtil.logMsgs=true #]
+		println("myself=${myself.name}")
+		println("curState=${currentState.stateName}")
+		println("currentMsg=${currentMsg}")
+	}
+	/*3*/Goto s1
+	
+	State s1{
+		printCurrentMessage
+		delay 400
+	}
+	Transition t0 whenMsg msg2 -> s2
+				  whenMsg msg1 -> s3
+	
+	State s2{
+		delay 500
+		printCurrentMessage
+		println("sonar online")
+		forward sonar -m msg1 : msg1(1)
+	} Goto s1
+	
+	State s3{
+		delay 500
+		printCurrentMessage
+		println("cargohold service online")
+		forward cargohold -m msg1 : msg1(1)
+	} Goto s1
+}
+
+
+QActor cargohold context ctxcargoholdservice{
+	State s0 initial{
+		delay 1000
+		forward cargo1 -m msg1 : msg1(1)
+	}
+	Transition t0 whenMsg msg1 -> s1
+	State s1{
+		printCurrentMessage
+	}
+}

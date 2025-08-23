@@ -1,0 +1,24 @@
+System cargoservice
+
+
+
+Dispatch msg1 : msg1(X)
+Dispatch msg2 : msg2(X)
+Event   cargoevent : cargoevent( INFO )
+
+Context ctxsonarservice ip [host="localhost" port=8889]
+Context ctxcargoholdservice ip [host="locahost" port=8888]
+
+ExternalQActor cargo1 context ctxcargoholdservice
+
+QActor sonar context ctxsonarservice{
+	State s0 initial{
+		forward cargo1 -m msg2 : msg2(1)
+		delay 500
+	}
+	Goto s1
+	State s1{
+		delay 500
+		println("done")
+	}
+}
