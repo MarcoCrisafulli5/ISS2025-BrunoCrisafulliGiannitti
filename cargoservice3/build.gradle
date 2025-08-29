@@ -149,7 +149,7 @@ eclipse {
 
 application {
     //Define the main class for the application.
-    mainClassName    = 'it.unibo.ctxcargoservice.MainCtxcargoserviceKt'
+    mainClassName    = 'it.unibo.ctxcargoholdservice.MainCtxcargoholdserviceKt'
 }
  
  jar {
@@ -185,15 +185,18 @@ task run0(type: JavaExec) {
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath
-    main = 'it.unibo.ctxcargoservice.MainCtxcargoserviceKt'
+    main = 'it.unibo.ctxcargoholdservice.MainCtxcargoholdserviceKt'
 }
+
 
 task run1(type: JavaExec) {
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath
     main = 'it.unibo.ctxsonarservice.MainCtxsonarserviceKt'
-}/*
+}
+
+/*
 //TODO
 tasks.register('copyReport', Copy) {
 	println("copyReport")

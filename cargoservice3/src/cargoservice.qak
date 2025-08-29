@@ -2,57 +2,143 @@ System cargoservice
 
 
 Dispatch msg1 : msg1(X)
-Dispatch msg2 : msg2(X)
 Event   cargoevent : cargoevent( INFO )
 
+Event sonardata      : distance(D)   //emitted  by sonardevice or (better) by datacleaner
+
+
+Request isonline : isonline (X)
+Reply onlinereply : onlinereply (ARG, STATE) for isonline
+
+Request requesttoload : requesttoload (PID)
+Reply replyrequesttoload : replyrequesttoload (X) for requesttoload
+/*
+Request productrequest : productrequest(PID) // from cargo1 to productservice (PID)
+Reply productreply : productreply(PID, PESO) for productrequest// from productservice to cargo1 with PID (PID, PESO)
+Reply productreplyfailed : productreplyfailed (ARG) for productrequest
+*/
+
+
+Request getProduct : product( ID )  
+Reply   getProductAnswer: product( JSonString ) for getProduct 
+
+
+Request holdrequest : holdrequest(PESO, PID) //from cargo1 to cargohold, PESO ok?, SLOT liberi?, PID product
+Reply holdreply : holdreply(SLOT, PID) for holdrequest // from cargohold to cargo1, SLOT assegnato, PID product
+Reply holdreplyfailed : holdreplyfailed ( ARG ) for holdrequest
+
+
+Request moverobot    :  moverobot(TARGETX, TARGETY)  
+Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+
+
+Context ctxusermock ip [host="localhost" port=8999] //usermock per mandare requesttoload
+
 Context ctxcargoholdservice ip [host="localhost" port=8888]
-Context ctxsonarservice ip [host="localhost" port=8889]
-Context ctxbasicrobot ip [host="localhost" port=8020]  
+//Context ctxsonarservice ip [host="127.0.0.1" port=8889] //context sonar fittizio per test 
+Context ctxsonarled2025 ip [ host= "localhost" port= 8128 ] // context per sonarLed2025
+Context ctxbasicrobot ip [host="localhost" port=8020]
 Context ctxcargoservice ip [ host="localhost" port=8111]
 
 ExternalQActor productservice context ctxcargoservice
 ExternalQActor cargorobot context ctxbasicrobot
-ExternalQActor sonar context ctxsonarservice
+ExternalQActor sonardevice context ctxsonarled2025
+ExternalQActor user context ctxusermock
 
-QActor cargo1 context ctxcargoholdservice{
+QActor cargoservice context ctxcargoholdservice{
 	State s0 initial {
 		[# sysUtil.logMsgs=true #]
 		println("myself=${myself.name}")
 		println("curState=${currentState.stateName}")
 		println("currentMsg=${currentMsg}")
 	}
-	/*3*/Goto s1
+	/*3*/Transition t00 whenRequest requesttoload -> s1
 	
 	State s1{
+		replyTo requesttoload with replyrequesttoload : replyrequesttoload(X)
 		printCurrentMessage
-		delay 400
+		request hold -m holdrequest : holdrequest(1)
+		delay 5000
+		request cargorobot -m moverobot : moverobot(1)
+		delay 5000
+		request productservice -m getProduct : getProduct(1)
 	}
-	Transition t0 whenMsg msg2 -> s2
-				  whenMsg msg1 -> s3
+	Transition t0 whenReply onlinereply -> s2
+				whenMsg msg1 -> work
+				  whenEvent sonardata -> perceiver
+	
+	State perceiver{
+		delay 5000
+	}
 	
 	State s2{
 		delay 500
-		printCurrentMessage
-		println("sonar online")
-		forward sonar -m msg1 : msg1(1)
+		onMsg(onlinereply : onlinereply(ARG, X)){
+			delay 500
+			[# var RequestArg0 = payloadArg(0);
+				var RequestArg1	= payloadArg(1)
+			#
+			]
+      		println(" cargo1 receives the reply ($RequestArg0) is ($RequestArg1)")
+		}
 	} Goto s1
 	
-	State s3{
+	State work{
 		delay 500
 		printCurrentMessage
-		println("cargohold service online")
-		forward cargohold -m msg1 : msg1(1)
-	} Goto s1
+		[# var PESO = 1000;
+			var PID = 1;
+			#]
+		delay 1000
+		request hold -m holdrequest : holdrequest(PESO, PID)
+		delay 2000
+	} Transition t1 whenReply holdreply -> handleReply
+					whenReply holdreplyfailed -> handleReply
+					
+	State handleReply{
+		onMsg(holdreply : holdreply (SLOT, PID)){
+		[# var RequestArg = payloadArg(0) #]
+      	println(" cargo1 receives the reply holdreply($RequestArg)")
+      	}
+      	onMsg(holdreplyfailed : holdreplyfailed (ARG)){
+      	[# var RequestArg = payloadArg(0) #]
+      	println(" cargo1 receives the replyfailed holdreplyfailed($RequestArg)")
+      	}
+	}Goto work
 }
 
 
-QActor cargohold context ctxcargoholdservice{
+QActor hold context ctxcargoholdservice{
 	State s0 initial{
 		delay 1000
-		forward cargo1 -m msg1 : msg1(1)
 	}
-	Transition t0 whenMsg msg1 -> s1
+	Transition t0 whenRequest isonline -> s1
+		
 	State s1{
 		printCurrentMessage
+		onMsg(isonline : isonline(X)){
+			replyTo isonline with onlinereply : onlinereply(HOLD, ONLINE)
+		}
+	}Goto work
+	
+	State work{
+		delay 5000
+		println("working")
+		forward cargoservice -m msg1 : msg1(1)
+	} Transition t1 whenRequest holdrequest -> handleRequest
+		
+		
+	State handleRequest{
+		onMsg( holdrequest : holdrequest(PESO, PID)){
+			[# var RequestArg = payloadArg(0) 
+				#]
+      		println(" cargohold receives the request holdrequest($RequestArg)")
+			replyTo holdrequest with holdreply : holdreply(1, 1)
+		}
 	}
+	Goto work
+	
 }
+
+

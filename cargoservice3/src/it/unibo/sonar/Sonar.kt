@@ -32,24 +32,40 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false, is
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						forward("msg2", "msg2(1)" ,"cargo1" ) 
-						delay(500) 
+						delay(10000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="s1", cond=doswitch() )
+					 transition(edgeName="t00",targetState="s1",cond=whenRequest("isonline"))
 				}	 
 				state("s1") { //this:State
 					action { //it:State
 						delay(500) 
-						CommUtils.outblack("done")
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("isonline(X)"), Term.createTerm("isonline(X)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								answer("isonline", "onlinereply", "onlinereply(SONAR,ONLINE)"   )  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="work", cond=doswitch() )
+				}	 
+				state("work") { //this:State
+					action { //it:State
+						delay(5000) 
+						CommUtils.outblack("working")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
 			}
 		}

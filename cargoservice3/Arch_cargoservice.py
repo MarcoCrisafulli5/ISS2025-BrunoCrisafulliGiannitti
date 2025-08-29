@@ -25,16 +25,21 @@ with Diagram('cargoserviceArch', show=False, outformat='png', graph_attr=graphat
   with Cluster('env'):
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
+     with Cluster('ctxusermock', graph_attr=nodeattr):
+          user=Custom('user(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxcargoholdservice', graph_attr=nodeattr):
-          cargo1=Custom('cargo1','./qakicons/symActorWithobjSmall.png')
-          cargohold=Custom('cargohold','./qakicons/symActorWithobjSmall.png')
-     with Cluster('ctxsonarservice', graph_attr=nodeattr):
-          sonar=Custom('sonar(ext)','./qakicons/externalQActor.png')
+          cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
+          hold=Custom('hold','./qakicons/symActorWithobjSmall.png')
+     with Cluster('ctxsonarled2025', graph_attr=nodeattr):
+          sonardevice=Custom('sonardevice(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxbasicrobot', graph_attr=nodeattr):
           cargorobot=Custom('cargorobot(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxcargoservice', graph_attr=nodeattr):
           productservice=Custom('productservice(ext)','./qakicons/externalQActor.png')
-     cargo1 >> Edge(color='blue', style='solid',  decorate='true', label='<msg1 &nbsp; >',  fontcolor='blue') >> sonar
-     cargo1 >> Edge(color='blue', style='solid',  decorate='true', label='<msg1 &nbsp; >',  fontcolor='blue') >> cargohold
-     cargohold >> Edge(color='blue', style='solid',  decorate='true', label='<msg1 &nbsp; >',  fontcolor='blue') >> cargo1
+     sys >> Edge( label='sonardata', **evattr, decorate='true', fontcolor='darkgreen') >> cargoservice
+     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
+     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<holdrequest<font color="darkgreen"> holdreply holdreplyfailed</font> &nbsp; >',  fontcolor='magenta') >> hold
+     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> cargorobot
+     user >> Edge(color='magenta', style='solid', decorate='true', label='<requesttoload<font color="darkgreen"> requesttoloadreply</font> &nbsp; >',  fontcolor='magenta') >> cargoservice          
+     hold >> Edge(color='blue', style='solid',  decorate='true', label='<msg1 &nbsp; >',  fontcolor='blue') >> cargoservice
 diag
