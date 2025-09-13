@@ -1,0 +1,33 @@
+System cargoservice
+
+
+
+Dispatch msg1 : msg1(X)
+Event   cargoevent : cargoevent( INFO )
+
+Request isonline : isonline (X)
+Reply onlinereply : onlinereply (ARG, STATE) for isonline
+
+Context ctxsonarservice ip [host="localhost" port=8889]
+Context ctxcargoholdservice ip [host="127.0.0.1" port=8888]
+
+ExternalQActor cargo1 context ctxcargoholdservice
+
+QActor sonar context ctxsonarservice{
+	State s0 initial{
+		delay 10000
+	} Transition t0 whenRequest isonline -> s1
+	
+	State s1{
+		delay 500
+		printCurrentMessage
+		onMsg(isonline : isonline(X)){
+			replyTo isonline with onlinereply : onlinereply(SONAR, ONLINE)
+		}
+	} Goto work
+	
+	State work{
+		delay 5000
+		println("working")
+	} Goto work
+}
