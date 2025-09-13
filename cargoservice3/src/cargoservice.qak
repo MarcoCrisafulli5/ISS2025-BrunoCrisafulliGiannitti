@@ -41,8 +41,8 @@ Context ctxsonarled2025 ip [ host= "localhost" port= 8128 ] // context per sonar
 Context ctxbasicrobot ip [host="localhost" port=8020]
 Context ctxcargoservice ip [ host="localhost" port=8111]
 
-ExternalQActor productservice context ctxcargoservice
-ExternalQActor cargorobot context ctxbasicrobot
+ExternalQActor productservice context ctxcargoservice  
+ExternalQActor basicrobot context ctxbasicrobot
 ExternalQActor sonardevice context ctxsonarled2025
 ExternalQActor user context ctxusermock
 
@@ -138,6 +138,19 @@ QActor hold context ctxcargoholdservice{
 		}
 	}
 	Goto work
+	
+}
+
+QActor cargorobot context ctxcargoholdservice {
+	State s0 initial{
+		delay 1000
+	}
+	Transition t0 whenRequest moverobot -> move
+	
+	State move{
+		request basicrobot -m moverobot : moverobot(1)
+		delay 5000
+	}
 	
 }
 

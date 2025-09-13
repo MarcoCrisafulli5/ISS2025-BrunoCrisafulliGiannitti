@@ -23,10 +23,12 @@ context(ctxsonarled2025, "localhost",  "TCP", "8128").
 context(ctxbasicrobot, "localhost",  "TCP", "8020").
 context(ctxcargoservice, "localhost",  "TCP", "8111").
  qactor( productservice, ctxcargoservice, "external").
-  qactor( cargorobot, ctxbasicrobot, "external").
+  qactor( basicrobot, ctxbasicrobot, "external").
   qactor( sonardevice, ctxsonarled2025, "external").
   qactor( user, ctxusermock, "external").
   qactor( cargoservice, ctxcargoholdservice, "it.unibo.cargoservice.Cargoservice").
  static(cargoservice).
   qactor( hold, ctxcargoholdservice, "it.unibo.hold.Hold").
  static(hold).
+  qactor( cargorobot, ctxcargoholdservice, "it.unibo.cargorobot.Cargorobot").
+ static(cargorobot).
