@@ -1,3 +1,0 @@
-{"actor":"bwbrcore", "msgType":"dispatch", "curstate":"turnandgo", "nextstate":"doboundary", "msgId":"goon"}
-{"actor":"bwobserver", "msgType":"dispatch", "curstate":"s0", "nextstate":"handlebrdata", "msgId":"brdata"}
-{"actor":"bwobserver", "msgType":"dispatch", "curstate":"handlebrdata", "nextstate":"handlebrdata", "msgId":"brdata"}
