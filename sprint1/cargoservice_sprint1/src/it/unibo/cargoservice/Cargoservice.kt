@@ -34,6 +34,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					var PESO = 0
 					var SLOT = 0
 				//REGISTER	 
+		 		
 		 		fun register(){
 				
 				if( CommUtils.ckeckEureka( ) ){
@@ -148,27 +149,12 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				state("verifySonar") { //this:State
 					action { //it:State
 						CommUtils.outblack("CargoService | Waiting for sonardata to know IOPORT position...")
-						request("sonarReq", "sonarReq(X)" ,"sonaradapter" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t05",targetState="move",cond=whenReply("sonarReply"))
-					transition(edgeName="t06",targetState="sonarErrorRetry",cond=whenReply("sonarReplyFailure"))
-				}	 
-				state("sonarErrorRetry") { //this:State
-					action { //it:State
-						delay(200) 
-						CommUtils.outblack("CargoService | SONAR failure -- retrying ")
-						request("sonarReq", "sonarReq(X)" ,"sonaradapter" )  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t17",targetState="move",cond=whenReply("sonarReply"))
-					transition(edgeName="t18",targetState="sonarErrorRetry",cond=whenReply("sonarReplyFailure"))
+					 transition( edgeName="goto",targetState="move", cond=doswitch() )
 				}	 
 				state("move") { //this:State
 					action { //it:State
@@ -179,8 +165,8 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t19",targetState="deliveryComplete",cond=whenReply("moverobotdone"))
-					transition(edgeName="t110",targetState="requestrefused",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t15",targetState="deliveryComplete",cond=whenReply("moverobotdone"))
+					transition(edgeName="t16",targetState="requestrefused",cond=whenReply("moverobotfailed"))
 				}	 
 				state("deliveryComplete") { //this:State
 					action { //it:State

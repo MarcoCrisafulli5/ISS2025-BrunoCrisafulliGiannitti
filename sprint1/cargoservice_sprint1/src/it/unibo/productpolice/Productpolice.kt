@@ -49,7 +49,7 @@ class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t0011",targetState="waitsendQuery",cond=whenRequest("productrequest"))
+					 transition(edgeName="t007",targetState="waitsendQuery",cond=whenRequest("productrequest"))
 				}	 
 				state("waitsendQuery") { //this:State
 					action { //it:State
@@ -65,7 +65,7 @@ class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t112",targetState="receiveparseanswer",cond=whenReply("getProductAnswer"))
+					 transition(edgeName="t18",targetState="receiveparseanswer",cond=whenReply("getProductAnswer"))
 				}	 
 				state("receiveparseanswer") { //this:State
 					action { //it:State

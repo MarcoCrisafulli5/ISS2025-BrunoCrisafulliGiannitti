@@ -100,7 +100,7 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t022",targetState="handleHoldReq",cond=whenRequest("holdrequest"))
+					 transition(edgeName="t018",targetState="handleHoldReq",cond=whenRequest("holdrequest"))
 				}	 
 				state("handleHoldReq") { //this:State
 					action { //it:State
@@ -124,13 +124,13 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t123",targetState="invalidPayload",cond=whenDispatchGuarded("msg1",{ invalid  
+					 transition(edgeName="t119",targetState="invalidPayload",cond=whenDispatchGuarded("msg1",{ invalid  
 					}))
-					transition(edgeName="t124",targetState="overweight",cond=whenDispatchGuarded("msg1",{ overweight  
+					transition(edgeName="t120",targetState="overweight",cond=whenDispatchGuarded("msg1",{ overweight  
 					}))
-					transition(edgeName="t125",targetState="full",cond=whenDispatchGuarded("msg1",{ full  
+					transition(edgeName="t121",targetState="full",cond=whenDispatchGuarded("msg1",{ full  
 					}))
-					transition(edgeName="t126",targetState="reserve",cond=whenDispatchGuarded("msg1",{ !invalid && !overweight && !full  
+					transition(edgeName="t122",targetState="reserve",cond=whenDispatchGuarded("msg1",{ !invalid && !overweight && !full  
 					}))
 				}	 
 				state("invalidPayload") { //this:State

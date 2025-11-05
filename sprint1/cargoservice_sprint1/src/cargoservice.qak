@@ -1,6 +1,4 @@
 System cargoservice
-mqttBroker "localhost" : 1883 eventTopic "sonardata"  //CAMBIARE CON IP MACCHINA SU CUI GIRA BROKER QUANDO SARA SU RASP
-
 
 Dispatch msg1 : msg1(X)
 Event   cargoevent : cargoevent( INFO )
@@ -20,9 +18,6 @@ Reply productreplyfailed : productreplyfailed (ARG) for productrequest
 Request getProduct : product( ID )  
 Reply   getProductAnswer: product( JSonString ) for getProduct 
 
-Request sonarReq : sonarReq(X)
-Reply sonarReply : sonarReply(X) for sonarReq
-Reply sonarReplyFailure : sonarReplyFailure(X) for sonarReq
 
 Request holdrequest : holdrequest(PESO, PID) //from cargo1 to cargohold, PESO ok?, SLOT liberi?, PID product
 Reply holdreply : holdreply(SLOT, PID) for holdrequest // from cargohold to cargo1, SLOT assegnato, PID product
@@ -72,6 +67,7 @@ QActor cargoservice context ctxcargoholdservice{
 			var PESO = 0
 			var SLOT = 0
 		//REGISTER	 
+ 		
  		fun register(){
 		
 		if( CommUtils.ckeckEureka( ) ){
@@ -156,25 +152,15 @@ QActor cargoservice context ctxcargoholdservice{
 //		delay 5000
 //		request productservice -m getProduct : getProduct(1)
 //	}
-	
+//	Transition t0 whenMsg msg1 -> s0
+//				  whenEvent sonardata -> perceiver
 //	
 	
 	// Aspetta il segnale del sonar per conoscere la posizione IOPORT
 	State verifySonar {
 		println("CargoService | Waiting for sonardata to know IOPORT position...")
-		request sonaradapter -m sonarReq : sonarReq(X)
-	} Transition t0 whenReply sonarReply -> move
-					whenReply sonarReplyFailure -> sonarErrorRetry
-	
-	State sonarErrorRetry{
-		delay 200
-		println("CargoService | SONAR failure -- retrying ")
-		request sonaradapter -m sonarReq : sonarReq(X)
-		
-	}Transition t1 whenReply sonarReply -> move
-					whenReply sonarReplyFailure -> sonarErrorRetry
-	
-	
+	} Goto move
+
 	// Chiama il robot passando lo slot
 	State move {
 		println("CargoService | Engaging robot for delivery...")
@@ -492,86 +478,6 @@ QActor hold context ctxcargoholdservice {
 	      replyTo holdrequest with holdreply : holdreply($SLOTNUMBER, $LASTPID)
   }Goto ready
 }
-
-
-	
-	/* 
-	 *-- approccio --
-	 *  Assumo che il sonar invii dati 1 volta al secondo e verifico 1 volta alla prima ricezione dati e poi alla terza ricezione (approssima tempo 3 sec come da requisito) 
-	 * 1. Attendi richiesta
-	 * 2. Leggi distanza e verifica se regolare
-	 *  3. Aspetta 2 secondi e ricontrolla distanza
-	 *  4. Se distanza ok -> reply ---- se distanza not ok -> replyFailure
-	 *  5. L'attore si esegue nuovamente su nuova richiesta in caso di fallimento
-	 * 
-	 */
-QActor sonaradapter context ctxcargoholdservice {
-	[#
-			var D = 0 
-			var DFREE = 10
-			var GUASTO = false 
-			#
-		]
-	State s0 initial {
-		delay 200
-		println("--------- sonaradapter ACTOR ONLINE -----------") color magenta
-	} Goto awaitingRequest
-	
-	State awaitingRequest{
-		println("--------- Waiting a Request -----------") color magenta
-		onMsg( sonardata : distance(X) ){
-			println("--------- Printing Sonar Data -----------") color magenta
-			[#  D = payloadArg(0).toInt() #]
- 			println("$name | handleSonardata D=$D DFREE=$DFREE") color magenta
- 			}
-	}Transition t0 whenRequest sonarReq -> handleRequest
-	
-	State handleRequest{
-		onMsg(sonarReq : sonarReq(X)){
-			println("---------SONAR REQUEST RECEIVED -------") color magenta
-		}
-	} Transition t1 whenEvent sonardata -> handleSonarData
-	
-	State handleSonarData{
-		onMsg( sonardata : distance(X) ){
-			[#  D = payloadArg(0).toInt() #]
- 			println("$name | handleSonardata D=$D DFREE=$DFREE") color magenta
-			if [# D > DFREE  #] { 
-				println("from SONAR | ledON | FAILURE") color magenta
-				[# GUASTO = true #]
-			}
-			if [# D <= DFREE/2  #] { 
-				println("from SONAR | ledOFF | PRODOTTO TROVATO") color magenta
-				[# GUASTO = false #]
-			}
-		}
-		delay 2000
-	}Transition t2 whenEvent sonardata -> verifyData
-	
-	State verifyData{
-		onMsg( sonardata : distance(X) ){
-			[#  D = payloadArg(0).toInt() #]
- 			println("$name | handleSonardata D=$D DFREE=$DFREE") color cyan
-			if [# D > DFREE  #] { 
-				println("from SONAR | ledON | FAILURE") color magenta
-				[# GUASTO = true #]
-			}
-			if [# D <= DFREE/2  #] { 
-				println("from SONAR | ledOFF | PRODOTTO TROVATO") color magenta
-				[# GUASTO = false #]
-			}
-		}
-	}Goto productAtIOPort if [# !GUASTO #] else handleFailure 
-	
-	
-	State productAtIOPort {
-		replyTo sonarReq with sonarReply : sonarReply(ok)	
-	} Goto awaitingRequest
-	
-	State handleFailure{
- 		replyTo sonarReq with sonarReplyFailure : sonarReplyFailure(ok)		
-	} Goto awaitingRequest
-} 
 
 /*
 QActor hold context ctxcargoholdservice{

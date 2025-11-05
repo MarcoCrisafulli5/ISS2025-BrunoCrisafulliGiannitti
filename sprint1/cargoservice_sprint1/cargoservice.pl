@@ -1,7 +1,6 @@
 %====================================================================================
 % cargoservice description   
 %====================================================================================
-mqttBroker("localhost", "1883", "sonardata").
 dispatch( msg1, msg1(X) ).
 event( cargoevent, cargoevent(INFO) ).
 event( sonardata, distance(D) ).
@@ -12,9 +11,6 @@ reply( productreply, productreply(PESO) ).  %%for productrequest
 reply( productreplyfailed, productreplyfailed(ARG) ).  %%for productrequest
 request( getProduct, product(ID) ).
 reply( getProductAnswer, product(JSonString) ).  %%for getProduct
-request( sonarReq, sonarReq(X) ).
-reply( sonarReply, sonarReply(X) ).  %%for sonarReq
-reply( sonarReplyFailure, sonarReplyFailure(X) ).  %%for sonarReq
 request( holdrequest, holdrequest(PESO,PID) ).
 reply( holdreply, holdreply(SLOT,PID) ).  %%for holdrequest
 reply( holdreplyfailed, holdreplyfailed(ARG) ).  %%for holdrequest
@@ -44,5 +40,3 @@ dynamic(productpolice). %%Oct2023
  static(cargorobot).
   qactor( hold, ctxcargoholdservice, "it.unibo.hold.Hold").
  static(hold).
-  qactor( sonaradapter, ctxcargoholdservice, "it.unibo.sonaradapter.Sonaradapter").
- static(sonaradapter).
