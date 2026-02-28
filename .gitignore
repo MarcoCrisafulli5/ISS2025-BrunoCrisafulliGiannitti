@@ -7,6 +7,11 @@ bin/default
 build
 logs 
 
+.gradle/
+build/
+*.lock
+*.bin
+
 log4jInfo.log
 
 #node
