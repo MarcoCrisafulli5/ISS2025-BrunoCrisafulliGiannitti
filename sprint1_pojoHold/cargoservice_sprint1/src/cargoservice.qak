@@ -1,0 +1,319 @@
+System cargoservice
+
+Dispatch msg1 : msg1(X)
+Event    cargoevent : cargoevent( INFO )
+
+Event sonardata      : distance(D) 
+
+Request requesttoload : requesttoload (PID)
+Reply replyrequesttoload : replyrequesttoload (X) for requesttoload
+
+// Richieste interne da cargoservice a productpolice
+Request productrequest : productrequest(PID)
+Reply productreply : productreply(PESO) for productrequest
+Reply productreplyfailed : productreplyfailed (ARG) for productrequest
+
+Request getProduct : product( ID )  
+Reply   getProductAnswer: product( JSonString ) for getProduct 
+
+// Richieste di movimento esterne generiche
+Request moverobot    :  moverobot(TARGETX, TARGETY)  
+Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+
+// Richieste di movimento interne
+Request moverobotinternal        :  moverobotinternal( SLOT )  
+Reply moverobotinternaldone      :  moverobotinternalok(ARG)                    for moverobotinternal
+Reply moverobotinternalfailed    :  moverobotinternalfailed(PLANDONE, PLANTODO) for moverobotinternal
+
+Request engage        : engage(OWNER, STEPTIME)	
+Reply   engagedone    : engagedone(ARG)    for engage
+Reply   engagerefused : engagerefused(ARG) for engage
+
+Dispatch disengage    : disengage(ARG)
+
+Context ctxcargoholdservice ip [host="localhost" port=8888]
+Context ctxbasicrobot ip [host="discoverable" port=8020]
+Context ctxcargoservice ip [ host="discoverable" port=8111]
+Context ctxusermock ip [ host="discoverable" port=8887]
+
+ExternalQActor productservice context ctxcargoservice
+ExternalQActor basicrobot context ctxbasicrobot
+ExternalQActor user context ctxusermock
+
+
+/*
+ * Attore principale che orchestra il flusso di vita di una richiesta
+ */
+QActor cargoservice context ctxcargoholdservice{
+	[#
+        // ========================================================
+        // DEFINIZIONE POJO INLINE: Slot e CargoHold
+        // ========================================================
+        enum class SlotState { FREE, RESERVED }
+
+        class Slot(val id: Int, val targetX: Int, val targetY: Int) {
+            var state: SlotState = SlotState.FREE
+            var pid: Int = 0
+            var peso: Int = 0
+
+            fun reserve(newPid: Int, newPeso: Int) {
+                this.state = SlotState.RESERVED
+                this.pid = newPid
+                this.peso = newPeso
+            }
+            fun release() {
+                this.state = SlotState.FREE
+                this.pid = 0
+                this.peso = 0
+            }
+            override fun toString() = "Slot$id [Stato:$state, PID:$pid, Peso:$peso, Coords:($targetX, $targetY)]"
+        }
+
+        object CargoHoldPojo {
+            private const val MAX_WEIGHT = 1000
+            val slots = listOf(
+                Slot(1, 1, 1),
+                Slot(2, 4, 1),
+                Slot(3, 1, 3),
+                Slot(4, 4, 3)
+            )
+
+            fun reserveSlot(peso: Int, pid: Int): Slot? {
+                if (peso <= 0 || pid <= 0 || peso > MAX_WEIGHT) return null
+                val freeSlot = slots.find { it.state == SlotState.FREE }
+                if (freeSlot != null) {
+                    freeSlot.reserve(pid, peso)
+                    return freeSlot
+                }
+                return null
+            }
+            
+            fun printState() {
+                println("=== STATO CARGOHOLD ===")
+                slots.forEach { println("  - $it") } 
+                println("=======================")
+            }
+        }
+        
+        var ID = 0
+        var PESO = 0
+        var SLOT = 0 // Manterrà l'ID logico per passarlo al robot
+        
+        fun register(){
+            if( CommUtils.ckeckEureka( ) ){
+                val discoveryclient = CommUtils.registerService( main.java.EurekaServiceConfig() )
+                CommUtils.outmagenta("discoveryclient=$discoveryclient ")
+                CommUtils.outmagenta("EUREKA")
+            } else {
+                CommUtils.outmagenta("NON VA EUREKA")
+            }
+        }
+	#]	
+    
+	State s0 initial {
+		[# sysUtil.logMsgs=true #]
+		[# register() #]
+		println("myself=${myself.name}")
+		println("curState=${currentState.stateName}")
+		delay 500
+	} Goto waitRequest
+	
+	State waitRequest{
+		delay 500
+		println("Awaiting Requests")
+	} Transition t00 whenRequest requesttoload -> verifyProductID
+	
+	State verifyProductID{
+		println("Request received - Verifying Product ID...")
+		println("------------------------------------------")
+		onMsg(requesttoload : requesttoload(PID)){
+			[#
+				var PID = payloadArg(0).toInt()
+				println( PID )
+				ID = PID
+				CommUtils.outgreen(" PID=$PID ")
+			#]
+		}
+	    create productpolice _"p1" //crea attore che si interfaccia con productservice
+	    requestbycreator productrequest : productrequest($ID)
+	    delay 500
+	} Transition t12 whenReply productreply -> waitResponsePolice	
+					 whenReply productreplyfailed -> requestrefused
+                     
+	State waitResponsePolice{
+		onMsg(productreply : productreply(PESO)){
+			[#
+				PESO = payloadArg(0).toInt()
+				CommUtils.outgreen(" PESO=$PESO ")
+			#]
+		}
+	} Goto verifyCargoHold if [# PESO!=0 #] else requestrefused
+	
+	// RICHIESTA HOLD SINCRONA TRAMITE POJO
+	State verifyCargoHold{
+		println("Product Id found in Database - Verifying Cargo Hold Slots Availability and Weight via POJO...")
+		println("------------------------------------------")
+		[#
+            val assignedSlot = CargoHoldPojo.reserveSlot(PESO, ID)
+            
+            if (assignedSlot != null) {
+                SLOT = assignedSlot.id
+                CommUtils.outblue("CargoService | Slot assegnato = $SLOT")
+                CargoHoldPojo.printState()
+            } else {
+                SLOT = 0
+                CommUtils.outred("CargoService | Errore: Stiva piena, carico non valido o in sovrappeso!")
+            }
+		#]
+	} Goto verifySonar if [# SLOT != 0 #] else requestrefused
+	
+	// Aspetta il segnale del sonar per conoscere la posizione IOPORT
+	State verifySonar {
+		println("CargoService | Waiting for sonardata to know IOPORT position...")
+	} Goto move
+
+	// Chiama il robot passando lo slot
+	State move {
+		println("CargoService | Engaging robot for delivery to SLOT $SLOT...")
+		request cargorobot -m moverobotinternal : moverobotinternal( $SLOT )
+	} Transition t1 whenReply moverobotinternaldone -> deliveryComplete
+					whenReply moverobotinternalfailed -> requestrefused
+
+	State deliveryComplete {
+		println("CargoService | Delivery completed successfully!")
+	} Goto waitRequest
+	
+	State requestrefused{
+		println("ATTENTION - Request refused")
+		println("---------------------------")
+		delay 500
+	} Goto waitRequest
+}
+
+
+/* Attore dinamico per interrogare productservice */
+QActor productpolice context ctxcargoholdservice dynamicOnly {
+	[#
+	var PID = 0	
+	var productok: Boolean = true
+	var WEIGHT = 0
+	#]
+	State s0 initial{
+		println("-----------------PRODUCT POLICE--------------------")
+	} Transition t00 whenRequest productrequest -> waitsendQuery
+	
+	State waitsendQuery{
+		onMsg(productrequest : productrequest(ID)){
+			[# 
+                PID = payloadArg(0).toInt()
+				CommUtils.outblue("-------- Product PID ---------")
+				println( PID ) 
+			#]
+			request productservice -m getProduct : product($PID) 
+		} 
+	} Transition t1 whenReply getProductAnswer -> receiveparseanswer
+	
+	State receiveparseanswer{
+		onMsg(getProductAnswer : product( JSonString )){
+			[# 	
+				fun getDataFromAnswer(){
+					var ANSWR = payloadArg(0)
+					println(ANSWR)
+					var parser = org.json.simple.parser.JSONParser()
+					var jsonObject = parser.parse(ANSWR) as org.json.simple.JSONObject
+					var productId = (jsonObject["productId"] as Long).toInt()
+					WEIGHT = (jsonObject["weight"] as Long).toInt()
+					if (productId != PID) productok = false 
+				}
+			    getDataFromAnswer()				
+            #]				
+		}
+	} Goto productaccepted if [# productok #] else productunknown
+	
+	State productaccepted{
+		replyTo productrequest with productreply: productreply($WEIGHT) 
+	} Goto end
+	
+	State productunknown{
+		replyTo productrequest with productreplyfailed : productreplyfailed(2)
+	} Goto end
+	
+	State end {
+		terminate 0
+	}
+}
+
+
+QActor cargorobot context ctxcargoholdservice {
+	[# 
+        var TARGETX = 0
+        var TARGETY = 0
+        var SLOT = 0
+    #]
+
+    State s0 initial {
+        println("CargoRobot ready and waiting for movement requests...")
+        delay 2000
+    } Goto waitRequest
+
+    State waitRequest {
+        println("CargoRobot | Waiting for load request...")
+    } Transition t0 whenRequest moverobotinternal -> engage
+
+    State engage {
+        onMsg(moverobotinternal : moverobotinternal( SLOT )) {
+            [#
+                CommUtils.outblue("-------- Received request with SLOT ---------")
+                var slotId = payloadArg(0).toInt()
+                
+                // Recuperiamo le coordinate dall'oggetto Slot
+                val mySlot = cargoservice.CargoHoldPojo.slots.find { it.id == slotId }
+                
+                if (mySlot != null) {
+                    TARGETX = mySlot.targetX
+                    TARGETY = mySlot.targetY
+                } else {
+                    TARGETX = 0
+                    TARGETY = 0
+                }
+                
+                CommUtils.outblue("CargoRobot | Slot=$slotId -> coords=($TARGETX,$TARGETY)")
+            #]
+            request basicrobot -m engage : engage($MyName, 330)
+        }
+    } Transition t1 whenReply engagedone -> goToIOPort
+                  whenReply engagerefused -> refused
+
+    State goToIOPort {
+    	delay 500
+        println("CargoRobot | Moving to IOPORT to pick up cargo...")
+        request basicrobot -m moverobot : moverobot(0, 4)
+    } Transition t2 whenReply moverobotdone -> goToTarget
+                  whenReply moverobotfailed -> refused
+
+    State goToTarget {
+    	delay 2000
+    	[# CommUtils.outblue("CargoRobot | Delivering cargo to ($TARGETX,$TARGETY)") #]
+    	request basicrobot -m moverobot : moverobot($TARGETX, $TARGETY)
+	} Transition t3 whenReply moverobotdone -> goHome
+                  whenReply moverobotfailed -> refused
+
+    State goHome {
+    	delay 1000
+        println("CargoRobot | Returning to base...")
+        request basicrobot -m moverobot : moverobot(0, 0)
+    } Transition t4 whenReply moverobotdone -> done
+                  whenReply moverobotfailed -> refused
+
+    State done {
+        forward basicrobot -m disengage : disengage(ok)
+        println("CargoRobot | Delivery completed.")
+        replyTo moverobotinternal with moverobotinternaldone : moverobotinternalok(ok)
+    } Goto s0
+
+    State refused {
+        println("CargoRobot | Movement failed.")
+        replyTo moverobotinternal with moverobotinternalfailed : moverobotinternalfailed(no, no)
+    } Goto s0
+}
