@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Hold Monitor — CargoService</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; background: #0d1117; color: #e6edf3; padding: 2rem; }
+  h1 { font-size: 1.1rem; font-weight: normal; color: #7d8590; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 0.75rem; color: #484f58; margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 520px; margin-bottom: 2rem; }
+  .slot { border: 1px solid #21262d; border-radius: 8px; padding: 1.25rem; background: #161b22; transition: border-color 0.3s, background 0.3s; }
+  .slot.occupied { border-color: #1f6feb; background: #0d1f36; }
+  .slot.flash { border-color: #58a6ff; }
+  .slot-label { font-size: 0.7rem; color: #484f58; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+  .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: #21262d; color: #7d8590; }
+  .badge.occ { background: #0d1f36; color: #58a6ff; border: 1px solid #1f6feb; }
+  .pid { font-size: 1.4rem; color: #58a6ff; margin-bottom: 0.25rem; }
+  .weight { font-size: 0.8rem; color: #7d8590; }
+  .empty-label { font-size: 0.9rem; color: #30363d; font-style: italic; }
+  .status { font-size: 0.75rem; color: #3fb950; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb950; animation: pulse 2s infinite; }
+  .dot.off { background: #484f58; animation: none; }
+  .metrics { display: flex; gap: 1.5rem; margin-bottom: 2rem; }
+  .metric { background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 0.75rem 1.25rem; }
+  .metric-label { font-size: 0.65rem; color: #484f58; text-transform: uppercase; letter-spacing: 0.08em; }
+  .metric-value { font-size: 1.4rem; color: #e6edf3; }
+  .log { border-top: 1px solid #21262d; padding-top: 1rem; }
+  .log-title { font-size: 0.7rem; color: #484f58; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+  .log-row { display: flex; gap: 0.75rem; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #161b22; font-size: 0.78rem; }
+  .log-badge { font-size: 0.65rem; padding: 1px 7px; border-radius: 8px; white-space: nowrap; }
+  .log-badge.res { background: #0d1f36; color: #58a6ff; }
+  .log-badge.free { background: #161b22; color: #7d8590; border: 1px solid #21262d; }
+  .log-time { margin-left: auto; color: #484f58; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+</style>
+</head>
+<body>
+
+<h1>Hold Monitor</h1>
+<p class="subtitle">coap://localhost:5683/holdstate — via WebSocket :8096</p>
+
+<div class="status">
+  <span class="dot" id="dot"></span>
+  <span id="status-label">connessione in corso...</span>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-label">occupati</div>
+    <div class="metric-value" id="occ-count">0 / 4</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">liberi</div>
+    <div class="metric-value" id="free-count">4 / 4</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">aggiornamenti</div>
+    <div class="metric-value" id="upd-count">0</div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="log">
+  <div class="log-title">Event log</div>
+  <div id="log-rows"></div>
+</div>
+
+<script>
+
+  let slots = Array.from({length:4}, (_,i) => ({id:i, occupied:false, pid:0, weight:0}));
+  let connected = false;
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    slots.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'slot' + (s.occupied ? ' occupied' : '');
+      div.id = 'slot-' + s.id;
+      div.innerHTML = `
+        <div class="slot-label">
+          Slot ${s.id + 1}
+          <span class="badge ${s.occupied ? 'occ' : ''}">${s.occupied ? 'occupato' : 'libero'}</span>
+        </div>
+        ${s.occupied
+          ? `<div class="pid">P${s.pid}</div><div class="weight">${s.weight} kg</div>`
+          : `<div class="empty-label">—</div>`
+        }
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  function flash(id) {
+    const el = document.getElementById('slot-' + id);
+    if (!el) return;
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 700);
+  }
+
+  function addLog(type, slotId, pid) {
+    const rows = document.getElementById('log-rows');
+    const now = new Date();
+    const t = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+    const row = document.createElement('div');
+    row.className = 'log-row';
+    row.innerHTML = `
+      <span class="log-badge ${type === 'res' ? 'res' : 'free'}">${type === 'res' ? 'riservato' : 'liberato'}</span>
+      <span>slot ${slotId + 1}${pid ? ' · P' + pid : ''}</span>
+      <span class="log-time">${t}</span>
+    `;
+    rows.prepend(row);
+    if (rows.children.length > 15) rows.lastChild.remove();
+  }
+
+  function updateMetrics() {
+    const occ = slots.filter(s => s.occupied).length;
+    document.getElementById('occ-count').textContent = occ + ' / 4';
+    document.getElementById('free-count').textContent = (4 - occ) + ' / 4';
+    document.getElementById('upd-count').textContent =  document.getElementById('log-rows').children.length; 
+  }
+
+  function setConnected(ok) {
+    connected = ok;
+    document.getElementById('dot').className = 'dot' + (ok ? '' : ' off');
+    document.getElementById('status-label').textContent = ok
+      ? 'CoAP observe attivo (via HTTP proxy)'
+      : 'proxy non raggiungibile — retry...';
+    document.getElementById('status-label').style.color = ok ? '#3fb950' : '#f85149';
+  }
+
+  function applyNewState(newSlots) {
+    newSlots.forEach(ns => {
+      const old = slots[ns.id];
+      if (old.occupied !== ns.occupied || old.pid !== ns.pid) {
+        flash(ns.id);
+        addLog(ns.occupied ? 'res' : 'free', ns.id, ns.pid);
+      }
+    });
+    slots = newSlots;
+    renderGrid();
+    updateMetrics();
+  }
+
+  const ws = new WebSocket('ws://localhost:8096');
+
+  ws.onopen = () => setConnected(true);
+
+  ws.onmessage = (e) => {
+      const newSlots = JSON.parse(e.data);
+      setConnected(true);
+      applyNewState(newSlots);
+  };
+
+  ws.onclose = () => {
+      setConnected(false);
+      // riconnessione automatica dopo 2 secondi
+      setTimeout(() => location.reload(), 2000);
+  };
+
+  ws.onerror = () => setConnected(false);
+
+  // Init
+  renderGrid();
+  updateMetrics();
+  poll();
+  setInterval(poll, INTERVAL);
+</script>
+</body>
+</html>
