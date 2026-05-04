@@ -1,0 +1,80 @@
+System cargoservice
+
+
+Request requesttoload : requesttoload (PID)
+Reply replyrequesttoload : replyrequesttoload (X) for requesttoload
+
+Context ctxusermock ip [ host="localhost" port=8887] 
+
+Context ctxcargoholdservice ip [host="discoverable" port=8888]
+
+
+ExternalQActor cargoservice context ctxcargoholdservice
+
+QActor user context ctxusermock{
+	[#
+		lateinit var eurekaClient : com.netflix.discovery.DiscoveryClient 
+
+//REGISTER	 
+ fun register(){
+		
+		if( CommUtils.ckeckEureka( ) ){
+			val discoveryclient = CommUtils.registerService( main.java.EurekaServiceConfig() )
+			CommUtils.outmagenta("discoveryclient=$discoveryclient ")
+			CommUtils.outmagenta("EUREKA")
+			
+		}else{CommUtils.outmagenta("NON VA EUREKA")}	 
+}
+		#
+	]
+	State s0 initial{
+		 [# register() #]
+		delay 1000
+	} Goto s1
+	
+	State s1{
+		println("SEND REQUEST PID: 17")
+		request cargoservice -m requesttoload : requesttoload(17) 
+	} Goto wait1
+	
+	State wait1{
+		delay 10000
+	} Goto s2
+	
+	State s2{
+		println("SEND REQUEST PID: 3")
+		request cargoservice -m requesttoload : requesttoload(3) 
+	} Goto wait2
+	
+	State wait2{
+		delay 10000
+	} Goto s3
+	
+	State s3{
+		println("SEND REQUEST PID: 8")
+		request cargoservice -m requesttoload : requesttoload(8) 
+	} Goto wait3
+	
+	State wait3{
+		delay 10000
+	} Goto s4
+	
+	State s4{
+		println("SEND REQUEST PID: 9")
+		request cargoservice -m requesttoload : requesttoload(9) 
+	} Goto wait4
+	
+	State wait4{
+		delay 10000
+	} Goto s5
+	
+	State s5{
+		println("SEND REQUEST PID: 9")
+		request cargoservice -m requesttoload : requesttoload(9) 
+	} Goto end
+	
+	State end{
+		delay 10000
+	}Goto end
+
+}

@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17.0.5_8-jre-focal
+
+
+ADD ./build/distributions/usermock-1.0.tar /
+WORKDIR /usermock-1.0/bin
+
+CMD ["bash", "cargoservice"]
+
+
