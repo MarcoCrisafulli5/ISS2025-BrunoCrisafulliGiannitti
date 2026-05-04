@@ -1,7 +1,7 @@
 %====================================================================================
 % cargoservice description   
 %====================================================================================
-mqttBroker("localhost", "1883", "sonardata").
+mqttBroker("mosquitto", "1883", "sonardata").
 dispatch( msg1, msg1(X) ).
 dispatch( slotrelease, slotrelease(SLOT) ).
 event( cargoevent, cargoevent(INFO) ).
@@ -42,7 +42,7 @@ context(ctxusermock, "discoverable",  "TCP", "8887").
   qactor( cargoservice, ctxcargoholdservice, "it.unibo.cargoservice.Cargoservice").
  static(cargoservice).
   qactor( productpolice, ctxcargoholdservice, "it.unibo.productpolice.Productpolice").
-dynamic(productpolice). %%Oct2023 
+ static(productpolice).
   qactor( cargorobot, ctxcargoholdservice, "it.unibo.cargorobot.Cargorobot").
  static(cargorobot).
   qactor( hold, ctxcargoholdservice, "it.unibo.hold.Hold").

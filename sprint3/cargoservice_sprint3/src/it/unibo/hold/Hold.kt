@@ -80,6 +80,7 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 		    var full     = false
 		    // (se vuoi aggiungere il controllo di sovrappeso)
 		    var overweight = false
+		    var totPeso = 0
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -113,9 +114,9 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 									        // ---> quando passi ai payload reali, usa invece:
 									         lastPeso = payloadArg(0).toInt()
 									         lastPid  = payloadArg(1).toInt()
-									
+											
 									        invalid    = (lastPeso <= 0 || lastPid <= 0)
-									        overweight = (lastPeso > MAXLOAD)   
+									        overweight = (lastPeso + totPeso > MAXLOAD)   
 									        lastIdx    = findFree()
 									        full       = (lastIdx < 0)
 						}
@@ -173,7 +174,7 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 							        reserve(lastIdx, lastPid, lastPeso)
 							        var LASTPID = lastPid
 							        var SLOTNUMBER = lastIdx + 1
-							        
+							        totPeso += lastPeso
 							        // → aggiorna la risorsa CoAP observable
 						        	HoldStateResource.updateSlot(lastIdx, true, lastPid, lastPeso)
 						CommUtils.outmagenta("hold reserved S$SLOTNUMBER for PID=${lastPid} (w=${lastPeso}). State: ${asString()}")
@@ -192,6 +193,7 @@ class Hold ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isd
 								
 								            val idx = payloadArg(0).toInt() - 1
 								            release(idx)
+								            totPeso -= slotPeso[idx]
 								            HoldStateResource.updateSlot(idx, false)
 								CommUtils.outcyan("hold | slot ${payloadArg(0)} liberato. State: ${asString()}")
 						}

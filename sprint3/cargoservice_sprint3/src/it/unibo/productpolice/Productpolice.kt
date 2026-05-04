@@ -20,7 +20,7 @@ import org.json.simple.JSONObject
 
 //User imports JAN2024
 
-class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=true ) : 
+class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
 
 	override fun getInitialState() : String{
@@ -44,6 +44,10 @@ class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outblack("-----------------PRODUCT POLICE--------------------")
+						 
+						        PID = 0              
+						        productok = true     
+						        WEIGHT = 0           
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -115,13 +119,12 @@ class Productpolice ( name: String, scope: CoroutineScope, isconfined: Boolean=f
 				}	 
 				state("end") { //this:State
 					action { //it:State
-						//terminate(0)
-						context!!.removeInternalActor(myself)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="s0", cond=doswitch() )
 				}	 
 			}
 		}

@@ -27,7 +27,7 @@ with Diagram('cargoserviceArch', show=False, outformat='png', graph_attr=graphat
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
      with Cluster('ctxcargoholdservice', graph_attr=nodeattr):
           cargoservice=Custom('cargoservice','./qakicons/symActorWithobjSmall.png')
-          productpolice=Custom('productpolice','./qakicons/symActorDynamicWithobj.png')
+          productpolice=Custom('productpolice','./qakicons/symActorWithobjSmall.png')
           cargorobot=Custom('cargorobot','./qakicons/symActorWithobjSmall.png')
           hold=Custom('hold','./qakicons/symActorWithobjSmall.png')
           sonaradapter=Custom('sonaradapter','./qakicons/symActorWithobjSmall.png')
@@ -43,6 +43,7 @@ with Diagram('cargoserviceArch', show=False, outformat='png', graph_attr=graphat
      cargorobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<sonarReq<font color="darkgreen"> sonarReply sonarReplyFailure</font> &nbsp; >',  fontcolor='magenta') >> sonaradapter
      productpolice >> Edge(color='magenta', style='solid', decorate='true', label='<getProduct<font color="darkgreen"> getProductAnswer</font> &nbsp; >',  fontcolor='magenta') >> productservice
+     cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<productrequest<font color="darkgreen"> productreply productreplyfailed</font> &nbsp; >',  fontcolor='magenta') >> productpolice
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<holdrequest<font color="darkgreen"> holdreply holdreplyfailed</font> &nbsp; >',  fontcolor='magenta') >> hold
      cargoservice >> Edge(color='magenta', style='solid', decorate='true', label='<moverobotinternal<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> cargorobot
      cargorobot >> Edge(color='blue', style='solid',  decorate='true', label='<disengage &nbsp; >',  fontcolor='blue') >> basicrobot

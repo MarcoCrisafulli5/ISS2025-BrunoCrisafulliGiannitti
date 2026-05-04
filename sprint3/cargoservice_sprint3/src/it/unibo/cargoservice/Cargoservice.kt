@@ -71,6 +71,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						delay(500) 
 						CommUtils.outblack("Awaiting Requests")
+						 SLOT = 0  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -90,7 +91,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 												ID = PID
 												CommUtils.outgreen(" PID=$PID ")
 						}
-						request("productrequest", "productrequest($ID)",createActorDynamically("productpolice", "_p1", false) )
+						request("productrequest", "productrequest($ID)" ,"productpolice" )  
 						delay(500) 
 						//genTimer( actor, state )
 					}
@@ -98,7 +99,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t121",targetState="waitResponsePolice",cond=whenReply("productreply"))
-					transition(edgeName="t122",targetState="requestrefused",cond=whenReply("productreplyfailed"))
+					transition(edgeName="t122",targetState="slotReset",cond=whenReply("productreplyfailed"))
 				}	 
 				state("waitResponsePolice") { //this:State
 					action { //it:State
@@ -115,7 +116,7 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					}	 	 
 					 transition( edgeName="goto",targetState="verifyCargoHold", cond=doswitchGuarded({ PESO!=0  
 					}) )
-					transition( edgeName="goto",targetState="requestrefused", cond=doswitchGuarded({! ( PESO!=0  
+					transition( edgeName="goto",targetState="slotReset", cond=doswitchGuarded({! ( PESO!=0  
 					) }) )
 				}	 
 				state("verifyCargoHold") { //this:State
@@ -196,6 +197,16 @@ class Cargoservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					sysaction { //it:State
 					}	 	 
 					 transition( edgeName="goto",targetState="waitRequest", cond=doswitch() )
+				}	 
+				state("slotReset") { //this:State
+					action { //it:State
+						 SLOT = 0  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="requestrefused", cond=doswitch() )
 				}	 
 				state("requestrefused") { //this:State
 					action { //it:State

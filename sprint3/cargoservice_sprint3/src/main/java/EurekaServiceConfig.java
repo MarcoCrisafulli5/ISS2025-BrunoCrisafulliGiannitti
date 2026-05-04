@@ -27,6 +27,7 @@ import unibo.basicomm23.utils.CommUtils;
 
 public class EurekaServiceConfig extends MyDataCenterInstanceConfig{
 	private int ncalls = 0;
+	private String cachedIp;
 	//Ottieni il nome dell'applicazione da registrare con Eureka.
 	
 	public EurekaServiceConfig() {
@@ -60,31 +61,32 @@ public class EurekaServiceConfig extends MyDataCenterInstanceConfig{
 //					+ " AT:" + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 //		}
 //// 		return ip;
- 		return "localhost";
+ 		return getIpAddress();
 	}
-
-	/*
+	
+	
 	//Ottieni l'IPAdress dell'istanza.
-    @Override
-    public String getIpAddress() {
-        String ipAddress = System.getenv("SERVICE_IP");
-        if (ipAddress != null && !ipAddress.isEmpty()) {
-        	CommUtils.outmagenta("EurekaServiceConfig ipAddress=" + ipAddress);
-            return ipAddress;
-        } else {
-        try {
-            // Ritorna l'IP della macchina su cui è in esecuzione il servizio
-        	String addr = InetAddress.getLocalHost().getHostAddress();
-        	CommUtils.outmagenta("EurekaServiceConfig addr=" + addr);
-            return addr;
-        } catch (Exception e) {
-            // Gestione degli errori in caso di problemi nel recuperare l'indirizzo
-            CommUtils.outred("EurekaServiceConfig getIpAddress ERROR " + e.getMessage());
-            return "127.0.0.1"; // Default a localhost se non riesce a ottenere l'indirizzo
-        }
-        }
-    }
-    */
+	@Override
+	public String getIpAddress() {
+	    if (cachedIp != null) {
+	        return cachedIp;
+	    }
+
+	    String ipAddress = System.getenv("SERVICE_IP");
+	    if (ipAddress != null && !ipAddress.isEmpty()) {
+	        cachedIp = ipAddress;
+	    } else {
+	        try {
+	            cachedIp = InetAddress.getLocalHost().getHostAddress();
+	        } catch (Exception e) {
+	            cachedIp = "127.0.0.1";
+	        }
+	    }
+
+	    CommUtils.outmagenta("EurekaServiceConfig ipAddress=" + cachedIp);
+	    return cachedIp;
+	}
+    
 
 	//Ottieni la non-secureporta su cui l'istanza deve ricevere traffico.
 	@Override

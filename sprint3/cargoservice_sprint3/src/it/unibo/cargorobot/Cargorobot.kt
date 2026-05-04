@@ -138,6 +138,8 @@ class Cargorobot ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("refused") { //this:State
 					action { //it:State
 						CommUtils.outblack("CargoRobot | Movement failed.")
+						CommUtils.outblack("CargoRobot | Returning to base...")
+						request("moverobot", "moverobot(0,0)" ,"basicrobot" )  
 						answer("moverobot", "moverobotfailed", "moverobotfailed(no,no)"   )  
 						//genTimer( actor, state )
 					}

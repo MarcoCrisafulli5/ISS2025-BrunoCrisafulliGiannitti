@@ -1,5 +1,5 @@
 System cargoservice
-mqttBroker "localhost" : 1883 eventTopic "sonardata"  //CAMBIARE CON IP MACCHINA SU CUI GIRA BROKER QUANDO SARA SU RASP
+mqttBroker "mosquitto" : 1883 eventTopic "sonardata"  //CAMBIARE CON IP MACCHINA SU CUI GIRA BROKER QUANDO SARA SU RASP
 
 
 Dispatch msg1 : msg1(X)
@@ -15,7 +15,6 @@ Reply replyrequesttoload : replyrequesttoload (X) for requesttoload
 Request productrequest : productrequest(PID) // from cargo1 to productservice (PID)
 Reply productreply : productreply(PESO) for productrequest// from productservice to cargo1 with PID (PID, PESO)
 Reply productreplyfailed : productreplyfailed (ARG) for productrequest
-
 
 
 Request getProduct : product( ID )  
@@ -104,6 +103,7 @@ QActor cargoservice context ctxcargoholdservice{
 	State waitRequest{
 		delay 500
 		println("Awaiting Requests")
+		[# SLOT = 0 #] 
 	}Transition t00 whenRequest requesttoload -> verifyProductID
 	
 	State verifyProductID{
@@ -119,12 +119,12 @@ QActor cargoservice context ctxcargoholdservice{
 				#
 			]
 		}
-	    create productpolice _"p1" //crea attore che si interfaccia con productservice
-	    requestbycreator productrequest : productrequest($ID)
+	    request productpolice -m productrequest : productrequest($ID)
 	    delay 500
 		//replyTo requesttoload with replyrequesttoload : replyrequesttoload(X)
 	} Transition t12 whenReply productreply ->	waitResponsePolice	
-					whenReply productreplyfailed -> requestrefused
+					whenReply productreplyfailed -> slotReset
+					
 	State waitResponsePolice{
 		onMsg(productreply : productreply(PESO)){
 			[#
@@ -133,7 +133,7 @@ QActor cargoservice context ctxcargoholdservice{
 				#
 			]
 		}
-	}	Goto verifyCargoHold if [# PESO!=0 #] else 	requestrefused
+	}	Goto verifyCargoHold if [# PESO!=0 #] else 	slotReset
 	
 //	Richiesta con ID prodotto valido, si procede al controllo sulla hold		
 	State verifyCargoHold{
@@ -184,13 +184,17 @@ QActor cargoservice context ctxcargoholdservice{
 	State deliveryComplete {
 		println("CargoService | Delivery completed successfully!")
 	} Goto waitRequest
-
+	
+	State slotReset{
+		[# SLOT = 0 #] 
+	}Goto requestrefused
+	
 	State requestrefused{
 		println("ATTENTION - Request refused")
 		println("---------------------------")
 		if [# SLOT != 0 #] {
         	forward hold -m slotrelease : slotrelease($SLOT)
-    	}
+    	} 
 		delay 500
 		//stato di ripiego se per qualsiasi motivo la richiesta fallisce
 	} Goto waitRequest
@@ -204,7 +208,7 @@ QActor cargoservice context ctxcargoholdservice{
  * Riceve productrequest
  * Risponde con productreply o productreplyfailed
  * */
-QActor productpolice context ctxcargoholdservice dynamicOnly {
+QActor productpolice context ctxcargoholdservice {
 	[#
 	var PID = 0	
 	var productok: Boolean = true
@@ -219,7 +223,11 @@ QActor productpolice context ctxcargoholdservice dynamicOnly {
 	#]
 	State s0 initial{
 		println("-----------------PRODUCT POLICE--------------------")
-		
+		[# 
+        PID = 0              
+        productok = true     
+        WEIGHT = 0           
+    	#]
 	} Transition t00 whenRequest productrequest -> waitsendQuery
 	
 	State waitsendQuery{
@@ -257,8 +265,8 @@ QActor productpolice context ctxcargoholdservice dynamicOnly {
 	} Goto end
 	
 	State end {
-		terminate 0
-	}
+		
+	} Goto s0
 } //actor productpolice
 
 
@@ -347,6 +355,8 @@ QActor cargorobot context ctxcargoholdservice {
     // Stato di errore
     State refused {
         println("CargoRobot | Movement failed.")
+        println("CargoRobot | Returning to base...")
+        request basicrobot -m moverobot : moverobot(0, 0)
         replyTo moverobot with moverobotfailed : moverobotfailed(no, no)
     } 
     Goto s0
@@ -408,6 +418,7 @@ QActor hold context ctxcargoholdservice {
     var full     = false
     // (se vuoi aggiungere il controllo di sovrappeso)
     var overweight = false
+    var totPeso = 0
   #]
   // ===== FSM =====
   State s0 initial {
@@ -428,9 +439,9 @@ QActor hold context ctxcargoholdservice {
 	        // ---> quando passi ai payload reali, usa invece:
 	         lastPeso = payloadArg(0).toInt()
 	         lastPid  = payloadArg(1).toInt()
-	
+			
 	        invalid    = (lastPeso <= 0 || lastPid <= 0)
-	        overweight = (lastPeso > MAXLOAD)   
+	        overweight = (lastPeso + totPeso > MAXLOAD)   
 	        lastIdx    = findFree()
 	        full       = (lastIdx < 0)
 	      #]
@@ -463,7 +474,7 @@ QActor hold context ctxcargoholdservice {
 	        reserve(lastIdx, lastPid, lastPeso)
 	        var LASTPID = lastPid
 	        var SLOTNUMBER = lastIdx + 1
-	        
+	        totPeso += lastPeso
 	        // → aggiorna la risorsa CoAP observable
         	HoldStateResource.updateSlot(lastIdx, true, lastPid, lastPeso)
 	      #]
@@ -476,6 +487,7 @@ QActor hold context ctxcargoholdservice {
         [#
             val idx = payloadArg(0).toInt() - 1
             release(idx)
+            totPeso -= slotPeso[idx]
             HoldStateResource.updateSlot(idx, false)
         #]
         println("hold | slot ${payloadArg(0)} liberato. State: ${asString()}") color cyan
@@ -505,7 +517,7 @@ QActor sonaradapter context ctxcargoholdservice {
 	State s0 initial {
 		delay 200
 		println("--------- sonaradapter ACTOR ONLINE -----------") color magenta
-		//subscribeTo mind for sonardata
+		subscribeTo mind for sonardata
 	} Goto awaitingRequest
 	
 	State awaitingRequest{
