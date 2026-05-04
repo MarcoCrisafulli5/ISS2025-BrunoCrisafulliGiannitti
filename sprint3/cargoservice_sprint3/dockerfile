@@ -1,0 +1,12 @@
+FROM eclipse-temurin:17.0.5_8-jre-focal
+
+
+## EXPOSE 8888
+## ADD extracts the tar
+ADD ./build/distributions/cargoservice-1.0.tar /
+WORKDIR /cargoservice-1.0/bin
+
+CMD ["bash", "cargoservice"]
+
+
+# docker run -d --name cargoholdservice --network iss-network -p 8888:8888 -p 8095:8095 -p 8096:8096 -p 5683:5683/udp cargoholdservice:latest
